@@ -18,10 +18,10 @@ struct ClickHouseConfig {
 
 trantor::LogStream& operator <<(trantor::LogStream& out, const ClickHouseConfig& chConfig) {
     return out << "HOST: " << chConfig.HOST << '\n'
-                << "USER: " << chConfig.USER << '\n'
-                << "PASSWORD: " << chConfig.PASSWORD << '\n'
-                << "PORT: " << chConfig.PORT << '\n'
-                << "CERT_PATH: " << chConfig.CERT_PATH;
+               << "USER: " << chConfig.USER << '\n'
+               << "PASSWORD: " << chConfig.PASSWORD << '\n'
+               << "PORT: " << chConfig.PORT << '\n'
+               << "CERT_PATH: " << chConfig.CERT_PATH;
 }
 
 ClickHouseConfig GetClickHouseConfig() {
@@ -38,7 +38,7 @@ int main() {
     ClickHouseConfig chConfig = GetClickHouseConfig();
     LOG_DEBUG << "ClickHouse config is: \n" << chConfig;
     //Set HTTP listener address and port
-    drogon::app().addListener("0.0.0.0", 80);
+    drogon::app().addListener("0.0.0.0", 8083);
 
     //Load config file
     drogon::app().loadConfigFile("../config.json");
