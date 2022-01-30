@@ -1,3 +1,6 @@
 [submodule "submodules/drogon"]
 	path = submodules/drogon
 	url = https://github.com/drogonframework/drogon
+[submodule "submodules/curlpp"]
+	path = submodules/curlpp
+	url = https://github.com/jpbarrette/curlpp

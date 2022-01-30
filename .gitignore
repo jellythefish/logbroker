@@ -3,6 +3,7 @@
 
 terraform/meta.txt
 build/*
+clickhouse_database/
 
 ### C ###
 # Prerequisites
