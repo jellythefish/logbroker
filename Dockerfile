@@ -11,4 +11,6 @@ RUN cd build \
     && cmake .. \ 
     && make
 
-ENTRYPOINT "./build/logbroker"
+WORKDIR /usr/app/logbroker/build
+
+ENTRYPOINT "./logbroker &> server.log"

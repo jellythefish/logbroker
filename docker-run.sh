@@ -13,6 +13,7 @@ docker run -it --entrypoint /bin/bash --name logbroker-container ^
     --rm -p 80:80 ^
     -v "C:\Users\Slava\Desktop\hw2\logbroker":/usr/app/logbroker ^
     --link clickhouse-server:clickhouse-server ^
+    -e LOGBROKER_CH_HOST="clickhouse-server" -e LOGBROKER_CH_PORT="8123" ^
     logbroker
 
 # single process detached (prod)

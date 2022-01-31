@@ -10,17 +10,19 @@ HealthCheckerReqHandler::HealthCheckerReqHandler(ClickHouseConnectorPtr clickHou
 void HealthCheckerReqHandler::HandleHealthCheck(const HttpRequestPtr& req,
                                                 Callback&& callback) const
 {
-    LOG_DEBUG << "GET /healthcheck from " << req->getHeaders().at("host");
+    LOG_DEBUG << req->getMethodString() << " " << req->getPath()
+              << " from " << req->getHeaders().at("host");
     auto responce = HttpResponse::newHttpResponse();
-    if (ClickHouseConnectorPtr_->ClickHouseIsOK()) {
-        responce->setContentTypeCode(CT_NONE);
+    responce->setContentTypeCode(CT_TEXT_PLAIN);
+    auto chResponse = ClickHouseConnectorPtr_->ClickHouseIsOK();
+    if (chResponse && chResponse->StatusCode == 200) {
         responce->setStatusCode(k200OK);
+        responce->setBody(chResponse->Body);
         LOG_DEBUG << "ClickHouse is OK";
     } else {
-        responce->setContentTypeCode(CT_TEXT_PLAIN);
         responce->setStatusCode(k503ServiceUnavailable);
-        responce->setBody("ClickHouse is not responding.");
-        LOG_DEBUG << "ClickHouse is not OK";
+        responce->setBody("ClickHouse is not responding");
+        LOG_ERROR << "ClickHouse is not OK: " << chResponse->Body;
     }
     callback(responce);
 }
