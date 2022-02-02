@@ -6,8 +6,20 @@ terraform {
     }
   }
 }
+variable "token_path" {
+  type = string
+}
+variable "cloud_id" {
+  type = string
+}
+variable "folder_id" {
+  type = string
+}
+variable "zone" {
+  type = string
+}
 provider "yandex" {
-  token     = var.token
+  token     = "${file(var.token_path)}"
   cloud_id  = var.cloud_id
   folder_id = var.folder_id
   zone      = var.zone
@@ -90,7 +102,7 @@ resource "yandex_compute_instance" "clickhouse" {
     nat       = false
   }
   metadata = {
-    user-data = "${file("./meta.txt")}"
+    user-data = "${file("~/.terraform-meta")}"
   }
 }
 
@@ -112,7 +124,7 @@ resource "yandex_compute_instance" "nat-instance" {
     nat       = true
   }
   metadata = {
-    user-data = "${file("./meta.txt")}"
+    user-data = "${file("~/.terraform-meta")}"
   }
 }
 
@@ -136,7 +148,7 @@ resource "yandex_compute_instance" "logbroker" {
     nat       = false
   }
   metadata = {
-    user-data = "${file("./meta.txt")}"
+    user-data = "${file("~/.terraform-meta")}"
   }
 }
 
