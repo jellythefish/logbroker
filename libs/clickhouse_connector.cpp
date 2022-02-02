@@ -1,5 +1,7 @@
 #include "clickhouse_connector.h"
 
+#include "helpers.h"
+
 #include <curlpp/cURLpp.hpp>
 #include <curlpp/Easy.hpp>
 #include <curlpp/Options.hpp>
@@ -50,7 +52,7 @@ ClickHouseLogEntries ClickHouseConnector::ParseRawLogEntries(const std::vector<s
             LOG_DEBUG << "Failed to parse JSON log entry" << reader.getFormattedErrorMessages();
             continue;
         }
-        for (const auto& log : logs) {
+        for (auto& log : logs) {
             ClickHouseQueryFormat queryFormat;
             if (log["format"].asString() == "json") {
                 queryFormat = ClickHouseQueryFormat::JSONEachRow;
@@ -61,19 +63,22 @@ ClickHouseLogEntries ClickHouseConnector::ParseRawLogEntries(const std::vector<s
                 continue;
             }
             std::vector<std::string> rows;
-            for (const auto& row : log["rows"]) {
+            for (auto& row : log["rows"]) {
                 // format CSV rows in-place, JSON rows come as is as they are valid
                 if (queryFormat == ClickHouseQueryFormat::CSV) {
                     std::stringstream csvRow;
                     std::string sep;
-                    for (const auto& elem : row) {
+                    for (auto& elem : row) {
                         csvRow << sep << elem;
                         sep = ",";
                     }
+                    // add hostname hack
+                    csvRow << "," << GetEnvOrDefault("HOSTNAME", "no hostname");
                     rows.push_back(csvRow.str());
                 } else {
                     Json::StreamWriterBuilder builder;
-                    builder["indentation"] = ""; 
+                    builder["indentation"] = "";
+                    row["hostname"] = GetEnvOrDefault("HOSTNAME", "no hostname");
                     rows.push_back(Json::writeString(builder, row));
                 }
             }
