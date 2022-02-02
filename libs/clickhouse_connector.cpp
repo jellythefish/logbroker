@@ -43,6 +43,15 @@ ClickHouseResponse ClickHouseConnector::ShowCreateTable(const std::string& table
     return SendRequest(request);
 }
 
+ClickHouseResponse ClickHouseConnector::ShowTable(const std::string& tableName) const {
+    ClickHouseRequest request{
+        .Type = ClickHouseRequestType::GET,
+        .UrlParams = "/?query=SELECT%20%2A%20FROM%20%22" + tableName + "%22",
+    };
+    return SendRequest(request);
+}
+
+
 ClickHouseLogEntries ClickHouseConnector::ParseRawLogEntries(const std::vector<std::string>& logEntries) const {
     ClickHouseLogEntries entries;
     for (const auto& logEntry : logEntries) {
@@ -78,7 +87,7 @@ ClickHouseLogEntries ClickHouseConnector::ParseRawLogEntries(const std::vector<s
                 } else {
                     Json::StreamWriterBuilder builder;
                     builder["indentation"] = "";
-                    row["hostname"] = GetEnvOrDefault("HOSTNAME", "no hostname");
+                    row["hostname"] = GetEnvOrDefault("SERVER_HOSTNAME", "no hostname");
                     rows.push_back(Json::writeString(builder, row));
                 }
             }

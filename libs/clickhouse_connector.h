@@ -55,6 +55,8 @@ namespace Logbroker {
 
             ClickHouseResponse ShowCreateTable(const std::string& tableName) const;
 
+            ClickHouseResponse ShowTable(const std::string& tableName) const;
+
             ClickHouseResponse SendRequest(const ClickHouseRequest& chRequest) const;
 
             ClickHouseLogEntries ParseRawLogEntries(const std::vector<std::string>& logEntries) const;
