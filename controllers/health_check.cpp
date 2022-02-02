@@ -12,17 +12,17 @@ void HealthCheckerReqHandler::HandleHealthCheck(const HttpRequestPtr& req,
 {
     LOG_DEBUG << req->getMethodString() << " " << req->getPath()
               << " from " << req->getHeaders().at("host");
-    auto responce = HttpResponse::newHttpResponse();
-    responce->setContentTypeCode(CT_TEXT_PLAIN);
+    auto response = HttpResponse::newHttpResponse();
+    response->setContentTypeCode(CT_TEXT_PLAIN);
     auto chResponse = ClickHouseConnectorPtr_->ClickHouseIsOK();
-    if (chResponse && chResponse->StatusCode == 200) {
-        responce->setStatusCode(k200OK);
-        responce->setBody(chResponse->Body);
+    if (chResponse.StatusCode == 200) {
+        response->setStatusCode(k200OK);
+        response->setBody(chResponse.Body);
         LOG_DEBUG << "ClickHouse is OK";
     } else {
-        responce->setStatusCode(k503ServiceUnavailable);
-        responce->setBody("ClickHouse is not responding");
-        LOG_ERROR << "ClickHouse is not OK: " << chResponse->Body;
+        response->setStatusCode(k503ServiceUnavailable);
+        response->setBody("ClickHouse is not responding");
+        LOG_ERROR << "ClickHouse is not OK: " << chResponse.Body;
     }
-    callback(responce);
+    callback(response);
 }

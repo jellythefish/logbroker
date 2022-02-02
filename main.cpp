@@ -13,6 +13,7 @@
 using namespace Logbroker;
 
 int main() {
+    // TODO: fix output to file in the beginning
     ClickHouseConnectorConfig chConnectorConfig = GetClickHouseConnectorConfig();
     LOG_DEBUG << "ClickHouse config is: \n" << chConnectorConfig;
     PersistentLoggerConfig persistentLoggerConfig;

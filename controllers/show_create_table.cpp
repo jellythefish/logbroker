@@ -10,25 +10,25 @@ ShowCreateTableHandler::ShowCreateTableHandler(ClickHouseConnectorPtr clickHouse
 void ShowCreateTableHandler::HandleShowRequest(const HttpRequestPtr& req, Callback&& callback) const {
     LOG_DEBUG << req->getMethodString() << " " << req->getPath() << "?" << req->getQuery() 
               << " from " << req->getHeaders().at("host");
-    auto responce = HttpResponse::newHttpResponse();
-    responce->setContentTypeCode(CT_TEXT_PLAIN);
+    auto response = HttpResponse::newHttpResponse();
+    response->setContentTypeCode(CT_TEXT_PLAIN);
     auto tableName = req->getParameter("table_name");
     if (tableName.empty()) {
         std::string errorMessage = "Show create table request failed: table name is empty";
-        responce->setStatusCode(k400BadRequest);
-        responce->setBody(errorMessage);
+        response->setStatusCode(k400BadRequest);
+        response->setBody(errorMessage);
         LOG_ERROR << errorMessage;
-        callback(responce);
+        callback(response);
         return;
     }
     auto chResponse = ClickHouseConnectorPtr_->ShowCreateTable(tableName);
-    if (chResponse && chResponse->StatusCode == 200) {
-        responce->setStatusCode(k200OK);
-        responce->setBody(chResponse->Body);
+    if (chResponse.StatusCode == 200) {
+        response->setStatusCode(k200OK);
+        response->setBody(chResponse.Body);
     } else {
-        responce->setStatusCode(k503ServiceUnavailable);
-        responce->setBody("Show create table request failed: " + chResponse->Body);
-        LOG_ERROR << "Show create table request failed" << chResponse->Body;
+        response->setStatusCode(k503ServiceUnavailable);
+        response->setBody("Show create table request failed: " + chResponse.Body);
+        LOG_ERROR << "Show create table request failed" << chResponse.Body;
     }
-    callback(responce);
+    callback(response);
 }

@@ -12,14 +12,14 @@ void WriteLogHandler::HandleWriteLog(const HttpRequestPtr& req,
 {
     LOG_DEBUG << req->getMethodString() << " " << req->getPath()
             << " from " << req->getHeaders().at("host");
-    auto responce = HttpResponse::newHttpResponse();
-    responce->setContentTypeCode(CT_TEXT_PLAIN);
+    auto response = HttpResponse::newHttpResponse();
+    response->setContentTypeCode(CT_TEXT_PLAIN);
     bool result = PersistentLoggerPtr_->Log(std::string(req->getBody()).c_str());
     if (result) {
-        responce->setStatusCode(k200OK);
+        response->setStatusCode(k200OK);
     } else {
-        responce->setStatusCode(k503ServiceUnavailable);
-        responce->setBody("Something went wrong");
+        response->setStatusCode(k503ServiceUnavailable);
+        response->setBody("Something went wrong");
     }
-    callback(responce);
+    callback(response);
 }

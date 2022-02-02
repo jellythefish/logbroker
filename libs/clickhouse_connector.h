@@ -7,7 +7,6 @@
 #include <memory>
 #include <stdint.h>
 #include <vector>
-#include <optional>
 
 namespace Logbroker {
 
@@ -42,8 +41,8 @@ namespace Logbroker {
     };
     using ClickHouseRequests = std::vector<ClickHouseRequest>;
     struct ClickHouseResponse {
-        uint64_t StatusCode;
-        std::string Body;
+        uint64_t StatusCode = 419;
+        std::string Body = "";
     };
 
     ClickHouseConnectorConfig GetClickHouseConnectorConfig();
@@ -52,11 +51,11 @@ namespace Logbroker {
         public:
             ClickHouseConnector(ClickHouseConnectorConfig chCongig);
 
-            std::optional<ClickHouseResponse> ClickHouseIsOK() const;
+            ClickHouseResponse ClickHouseIsOK() const;
 
-            std::optional<ClickHouseResponse> ShowCreateTable(const std::string& tableName) const;
+            ClickHouseResponse ShowCreateTable(const std::string& tableName) const;
 
-            std::optional<ClickHouseResponse> SendRequest(const ClickHouseRequest& chRequest) const;
+            ClickHouseResponse SendRequest(const ClickHouseRequest& chRequest) const;
 
             ClickHouseLogEntries ParseRawLogEntries(const std::vector<std::string>& logEntries) const;
 

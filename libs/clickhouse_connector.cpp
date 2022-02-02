@@ -8,9 +8,6 @@
 #include <cassert>
 #include <stdint.h>
 
-// TODO: use drogon http client instead of curlpp
-// https://github.com/drogonframework/drogon/blob/991873cf604f551027d2b26f3ee911ad6421e790/examples/client_example/main.cc
-
 using namespace Logbroker;
 
 ClickHouseConnectorConfig Logbroker::GetClickHouseConnectorConfig() {
@@ -28,7 +25,7 @@ ClickHouseConnector::ClickHouseConnector(ClickHouseConnectorConfig chConfig)
 {
 }
 
-std::optional<ClickHouseResponse> ClickHouseConnector::ClickHouseIsOK() const {
+ClickHouseResponse ClickHouseConnector::ClickHouseIsOK() const {
     ClickHouseRequest request{
         .Type = ClickHouseRequestType::GET,
         .UrlParams = "/?query=SELECT%20%27wassup%2C%20clickhouse%20in%20the%20building%27",
@@ -36,7 +33,7 @@ std::optional<ClickHouseResponse> ClickHouseConnector::ClickHouseIsOK() const {
     return SendRequest(request);
 }
 
-std::optional<ClickHouseResponse> ClickHouseConnector::ShowCreateTable(const std::string& tableName) const {
+ClickHouseResponse ClickHouseConnector::ShowCreateTable(const std::string& tableName) const {
     ClickHouseRequest request{
         .Type = ClickHouseRequestType::GET,
         .UrlParams = "/?query=SHOW%20CREATE%20TABLE%20%22" + tableName + "%22",
@@ -91,7 +88,8 @@ ClickHouseLogEntries ClickHouseConnector::ParseRawLogEntries(const std::vector<s
     return entries;
 }
 
-std::optional<ClickHouseResponse> ClickHouseConnector::SendRequest(const ClickHouseRequest& chRequest) const {
+ClickHouseResponse ClickHouseConnector::SendRequest(const ClickHouseRequest& chRequest) const {
+    std::string errorMessage;
     try {
         LOG_DEBUG << "Sending "<< chRequest.Type << " request to ClickHouse server: " 
                   << chRequest.UrlParams;
@@ -112,13 +110,18 @@ std::optional<ClickHouseResponse> ClickHouseConnector::SendRequest(const ClickHo
         request.perform();
         uint64_t response_code = curlpp::infos::ResponseCode::get(request);
         std::string response_body = response.str();
-        return std::optional<ClickHouseResponse>({response_code, response_body});
-     } catch (curlpp::RuntimeError& e) {
-        LOG_ERROR << e.what();
+        return {response_code, response_body};
+    } catch (curlpp::RuntimeError& e) {
+        errorMessage = e.what();
+        LOG_ERROR << errorMessage;
     } catch (curlpp::LogicError& e) {
-        LOG_ERROR << e.what();
+        errorMessage = e.what();
+        LOG_ERROR << errorMessage;
+    } catch (const std::exception& e) {
+        errorMessage = e.what();
+        LOG_ERROR << errorMessage;
     }
-    return std::nullopt;
+    return {500, errorMessage};
 }
 
 ClickHouseRequests ClickHouseConnector::BuildClickHouseRequests(const ClickHouseLogEntries& logEntries) const {
@@ -153,13 +156,13 @@ bool ClickHouseConnector::MakeRequests(const ClickHouseRequests& requests) const
     bool allRequestsSucceded = true;
     for (const auto& request : requests) {
         auto response = SendRequest(request);
-        if (!response) {
+        if (response.StatusCode != 200) {
             allRequestsSucceded = false;
             continue;
         }
         std::stringstream message;
-        message << "ClickHouse Response is (" << response->StatusCode << "): " << response->Body;
-        if (response->StatusCode != 200) {
+        message << "ClickHouse Response is (" << response.StatusCode << "): " << response.Body;
+        if (response.StatusCode != 200) {
             allRequestsSucceded = false;
             LOG_ERROR << message.str();
         } else {
