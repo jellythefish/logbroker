@@ -82,12 +82,12 @@ ClickHouseLogEntries ClickHouseConnector::ParseRawLogEntries(const std::vector<s
                         sep = ",";
                     }
                     // add hostname hack
-                    csvRow << "," << GetEnvOrDefault("HOSTNAME", "no hostname");
+                    csvRow << "," << GetEnvOrDefault("SERVER_HOSTNAME", "no hostname");
                     rows.push_back(csvRow.str());
                 } else {
                     Json::StreamWriterBuilder builder;
                     builder["indentation"] = "";
-                    row["hostname"] = GetEnvOrDefault("SERVER_HOSTNAME", "no hostname");
+                    row["host"] = GetEnvOrDefault("SERVER_HOSTNAME", "no hostname");
                     rows.push_back(Json::writeString(builder, row));
                 }
             }
@@ -170,12 +170,12 @@ bool ClickHouseConnector::MakeRequests(const ClickHouseRequests& requests) const
     bool allRequestsSucceded = true;
     for (const auto& request : requests) {
         auto response = SendRequest(request);
+        std::stringstream message;
+        message << "ClickHouse Response is (" << response.StatusCode << "): " << response.Body;
         if (response.StatusCode != 200) {
             allRequestsSucceded = false;
             continue;
         }
-        std::stringstream message;
-        message << "ClickHouse Response is (" << response.StatusCode << "): " << response.Body;
         if (response.StatusCode != 200) {
             allRequestsSucceded = false;
             LOG_ERROR << message.str();
