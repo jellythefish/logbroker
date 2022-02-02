@@ -1,0 +1,10 @@
+- name: Deploy Logbroker
+  hosts: logbrokers
+  become: true
+  
+  tasks:
+   - name: Copy Deploy Script && Run It
+     script: ./logbroker.sh {{ hostvars['clickhouse-0'].ansible_host }} 8123
+     register: out
+
+   - debug: var=out.stdout_lines

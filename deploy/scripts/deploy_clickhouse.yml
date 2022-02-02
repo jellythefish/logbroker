@@ -1,0 +1,10 @@
+- name: Deploy ClickHousers
+  hosts: clickhousers
+  become: true
+  
+  tasks:
+   - name: Copy Deploy Script && Run It
+     script: ./clickhouse.sh
+     register: out
+
+   - debug: var=out.stdout_lines

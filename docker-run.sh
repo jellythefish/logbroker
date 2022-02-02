@@ -1,25 +1,33 @@
 #build
-docker build . -t logbroker
+docker build . -t jellythefish/logbroker
 
-# clickhouse run
+# clickhouse server dev
 docker run -d --name clickhouse-server -p 8123:8123 --ulimit nofile=262144:262144 ^
---volume="C:\Users\Slava\Desktop\hw2\logbroker\clickhouse_database":/var/lib/clickhouse yandex/clickhouse-server
+    --volume="C:\Users\Slava\Desktop\hw2\logbroker\clickhouse_database":/var/lib/clickhouse ^
+    yandex/clickhouse-server
+
+# clickhouse server prod
+docker run -d --name clickhouse-server -p 8123:8123 --ulimit nofile=262144:262144 --restart always ^
+    yandex/clickhouse-server
 
 # clickhouse client
-docker run -it --rm --link clickhouse-server:clickhouse-server yandex/clickhouse-client --host clickhouse-server
+docker run -it --rm --link clickhouse-server:clickhouse-server yandex/clickhouse-client ^
+    --host clickhouse-server
 
-# dev
+# logbroker dev (all containers in one network)
 docker run -it --entrypoint /bin/bash --name logbroker-container ^
     --rm -p 80:80 ^
     -v "C:\Users\Slava\Desktop\hw2\logbroker":/usr/app/logbroker ^
     --link clickhouse-server:clickhouse-server ^
     -e LOGBROKER_CH_HOST="clickhouse-server" -e LOGBROKER_CH_PORT="8123" ^
-    logbroker
+    jellythefish/logbroker
 
-# single process detached (prod)
-docker run --name logbroker-container -p 80:80 -it --restart always logbroker
+# logbroker prod (run with args)
+docker run -p 80:80 -d --restart always ^
+    -e LOGBROKER_CH_HOST=$1 -e LOGBROKER_CH_PORT=$2 ^
+    jellythefish/logbroker
 
 # requests to CH server from host OS (hostname is clickhouse-server from docker)
 curl -X POST -H "transfer-encoding:chunked" localhost:8123 -d "SELECT 0;"
-# py
+# from py
 requests.post("http://localhost:8123/?query=SELECT%200%3B").text

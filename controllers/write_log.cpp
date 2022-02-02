@@ -14,6 +14,7 @@ void WriteLogHandler::HandleWriteLog(const HttpRequestPtr& req,
             << " from " << req->getHeaders().at("host");
     auto response = HttpResponse::newHttpResponse();
     response->setContentTypeCode(CT_TEXT_PLAIN);
+    // TODO: answer 404 if talbe not exists
     bool result = PersistentLoggerPtr_->Log(std::string(req->getBody()).c_str());
     if (result) {
         response->setStatusCode(k200OK);
