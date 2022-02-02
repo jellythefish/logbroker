@@ -1,0 +1,10 @@
+- name: Update Logbroker
+  hosts: logbrokers
+  become: true
+  
+  tasks:
+   - name: Copy Update Script && Run It
+     script: ./update_logbroker.sh {{ hostvars['clickhouse-0'].ansible_host }} 8123
+     register: out
+
+   - debug: var=out.stdout_lines
