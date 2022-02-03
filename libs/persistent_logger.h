@@ -17,10 +17,10 @@ using namespace std::literals::chrono_literals;
 namespace Logbroker {
     // TODO: enable configuring from env
     struct PersistentLoggerConfig {
-        uint64_t MaxRowsInLog = 10;
+        uint64_t MaxRowsInLog = 100;
         std::string LogFilename = "persistent.log";
-        std::chrono::milliseconds CommitPeriodMs = 30000ms;
-        uint64_t RetriesCount = 3;
+        std::chrono::milliseconds CommitPeriodMs = 60000ms;
+        uint64_t RetriesCount = 2;
     };
 
     class PersistentLogger {

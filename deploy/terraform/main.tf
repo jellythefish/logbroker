@@ -72,11 +72,11 @@ resource "yandex_lb_network_load_balancer" "logbroker-balancer" {
 
     healthcheck {
       name = "healthcheck-backends-and-clickhouse-too"
-      interval = 10
-      timeout = 5
+      interval = 60
+      timeout = 3
       http_options {
         port = 80
-        path = "/healthcheck"
+        path = "/"
       }
     }
   }
