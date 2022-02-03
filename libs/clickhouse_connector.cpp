@@ -119,6 +119,8 @@ ClickHouseResponse ClickHouseConnector::SendRequest(const ClickHouseRequest& chR
             request.setOpt(new curlpp::options::PostFields(chRequest.Body));
         }
         request.setOpt(new curlpp::options::WriteStream(&response));
+        request.setOpt(new curlpp::options::ConnectTimeout(5)); // 5 seconds for connection timeout
+        request.setOpt(new curlpp::options::Timeout(0)); // no limits for transfering
         // TODO: configure SSL later
         // request.setOpt(new curlpp::options::SslEngineDefault());
         request.perform();
