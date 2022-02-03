@@ -8,13 +8,14 @@ import argparse
 def main():
     parser = argparse.ArgumentParser(description='send logs to balancer')
     parser.add_argument('host', type=str)
-    parser.add_argument('number_of_entries', type=str)
+    parser.add_argument('range_start', type=str)
+    parser.add_argument('range_finish', type=str)
     parser.add_argument('table_name', type=str)
     args = parser.parse_args()
 
-    url = "http://{}/write_log".format(args.host)
+    url = "{}/write_log".format(args.host)
 
-    for i in range(0, int(args.number_of_entries), 4):
+    for i in range(int(args.range_start), int(args.range_finish), 4):
         entry = [
             {
                 "table_name": args.table_name,
