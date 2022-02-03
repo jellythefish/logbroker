@@ -14,7 +14,7 @@ namespace Logbroker {
         std::string Host;
         std::string User;
         std::string Password;
-        int Port;
+        std::string Port;
         std::string CertPath;
     };
 

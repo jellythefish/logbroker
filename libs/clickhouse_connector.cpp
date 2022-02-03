@@ -17,7 +17,7 @@ ClickHouseConnectorConfig Logbroker::GetClickHouseConnectorConfig() {
         .Host = GetEnvOrDefault("LOGBROKER_CH_HOST", "localhost"),
         .User = GetEnvOrDefault("LOGBROKER_CH_USER"),
         .Password = GetEnvOrDefault("LOGBROKER_CH_PASSWORD"),
-        .Port = std::stoi(GetEnvOrDefault("LOGBROKER_CH_PORT", "80")),
+        .Port = GetEnvOrDefault("LOGBROKER_CH_PORT", "80"),
         .CertPath = GetEnvOrDefault("LOGBROKER_CH_CERT_PATH")
     };
 }
@@ -172,10 +172,6 @@ bool ClickHouseConnector::MakeRequests(const ClickHouseRequests& requests) const
         auto response = SendRequest(request);
         std::stringstream message;
         message << "ClickHouse Response is (" << response.StatusCode << "): " << response.Body;
-        if (response.StatusCode != 200) {
-            allRequestsSucceded = false;
-            continue;
-        }
         if (response.StatusCode != 200) {
             allRequestsSucceded = false;
             LOG_ERROR << message.str();

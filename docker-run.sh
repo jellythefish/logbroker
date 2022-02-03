@@ -19,12 +19,12 @@ docker run -it --entrypoint /bin/bash --name logbroker-container ^
     --rm -p 80:80 ^
     -v "C:\Users\Slava\Desktop\hw2\logbroker":/usr/app/logbroker ^
     --link clickhouse-server:clickhouse-server ^
-    -e LOGBROKER_CH_HOST="clickhouse-server" -e LOGBROKER_CH_PORT="8123" ^
+    -e LOGBROKER_CH_HOST="clickhouse-server" -e LOGBROKER_CH_PORT="8123" -e SERVER_HOSTNAME=$(hostname --fqdn) ^
     jellythefish/logbroker
 
 # logbroker prod (run with args)
 docker run -p 80:80 -d --restart always ^
-    -e LOGBROKER_CH_HOST=$1 -e LOGBROKER_CH_PORT=$2 ^
+    -e LOGBROKER_CH_HOST=$1 -e LOGBROKER_CH_PORT=$2 -e SERVER_HOSTNAME=$(hostname --fqdn) ^
     jellythefish/logbroker
 
 # requests to CH server from host OS (hostname is clickhouse-server from docker)
